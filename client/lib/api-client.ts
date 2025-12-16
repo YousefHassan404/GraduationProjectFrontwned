@@ -12,7 +12,7 @@ import {
   HealthCheckResponse,
 } from "@shared/api";
 
-const BASE_URL = "http://localhost:3000/api";
+const BASE_URL = "https://brain-tumor-backend-api.vercel.app/api";
 
 class APIClient {
   private token: string | null = null;
