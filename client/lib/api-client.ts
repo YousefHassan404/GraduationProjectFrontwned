@@ -10,10 +10,12 @@ import {
   PDFReportRequest,
   UserProfile,
   HealthCheckResponse,
+  PredictionResponse,
+  PredictionResponse2D,
 } from "@shared/api";
 
-const BASE_URL = "https://brain-tumor-backend-api.vercel.app/api";
-
+const BASE_URL = "https://brain-tumor-backend-v1.vercel.app/api";
+// const BASE_URL = "http://localhost:3000/api";
 class APIClient {
   private token: string | null = null;
 
@@ -308,6 +310,150 @@ class APIClient {
       };
     }
   }
+  
+
+// في ملف lib/api-client.ts
+async predict(file: File): Promise<PredictionResponse2D> {
+  const formData = new FormData();
+  formData.append('image', file); // الاسم أصبح image كما هو مطلوب
+  return this.makeRequest<PredictionResponse2D>('/predict/2d', 'POST', formData, {}, true);
+}
+
+// ============ 3D Brain Tumor Endpoints ============
+
+/** 
+ * Submit 4 MRI modalities for 3D segmentation.
+ * @param files Object containing the four modality files (t1, t1gd, t2, flair)
+ * @returns Job submission response with job_id and prediction_id
+ */
+async submit3DSegmentationJob(files: {
+  t1: File;
+  t1gd: File;
+  t2: File;
+  flair: File;
+}): Promise<{
+  success: boolean;
+  job_id: string;
+  prediction_id: string;
+}> {
+  const formData = new FormData();
+  formData.append('t1', files.t1);
+  formData.append('t1gd', files.t1gd);
+  formData.append('t2', files.t2);
+  formData.append('flair', files.flair);
+  return this.makeRequest('/3dpredict', 'POST', formData, {}, true);
+}
+
+/**
+ * Check the status of a 3D segmentation job.
+ * @param jobId The job ID returned from submission
+ * @returns Status object – either { status: "processing" } or completed with metrics
+ */
+async get3DJobStatus(jobId: string): Promise<{
+  status: string;
+  metrics?: {
+    NCR: { volume_cm3: number; confidence: number };
+    ED: { volume_cm3: number; confidence: number };
+    ET: { volume_cm3: number; confidence: number };
+    Total: { volume_cm3: number; confidence: number };
+    tumor_type: string;
+    classification_confidence: number;
+  };
+}> {
+  return this.makeRequest(`/3dpredict/status/${jobId}`, 'GET');
+}
+
+/**
+ * Download the generated segmentation mask (.nii.gz).
+ * @param jobId The job ID
+ * @returns Blob containing the .nii.gz file
+ */
+async download3DSegmentationMask(jobId: string): Promise<Blob> {
+  const url = `${BASE_URL}/3dpredict/download/${jobId}`;
+  const headers: Record<string, string> = {};
+  if (this.token) {
+    headers['Authorization'] = `Bearer ${this.token}`;
+  }
+
+  try {
+    const response = await fetch(url, { method: 'GET', headers });
+    if (!response.ok) {
+      if (response.status === 401) {
+        this.clearToken();
+        window.location.href = '/login';
+      }
+      const errorData = await response.json().catch(() => ({
+        message: response.statusText,
+      }));
+      throw {
+        status: response.status,
+        message: errorData.message || this.getErrorMessage(response.status),
+      };
+    }
+    // Ensure it's a binary file
+    const contentType = response.headers.get('content-type');
+    if (!contentType || !contentType.includes('application/octet-stream')) {
+      throw {
+        status: 500,
+        message: 'Invalid response format. Expected binary file.',
+      };
+    }
+    return response.blob();
+  } catch (error: any) {
+    if (error.status) throw error;
+    throw {
+      status: 0,
+      message: error.message || 'Failed to download segmentation mask.',
+    };
+  }
+}
+
+/**
+ * View a specific uploaded MRI modality for a job.
+ * @param jobId The job ID
+ * @param modalityIndex 0: T1, 1: T1GD, 2: T2, 3: FLAIR
+ * @returns Blob containing the original .nii.gz file
+ */
+async view3DModality(jobId: string, modalityIndex: 0 | 1 | 2 | 3): Promise<Blob> {
+  const url = `${BASE_URL}/3dpredict/view/${jobId}/${modalityIndex}`;
+  const headers: Record<string, string> = {};
+  if (this.token) {
+    headers['Authorization'] = `Bearer ${this.token}`;
+  }
+
+  try {
+    const response = await fetch(url, { method: 'GET', headers });
+    if (!response.ok) {
+      if (response.status === 401) {
+        this.clearToken();
+        window.location.href = '/login';
+      }
+      const errorData = await response.json().catch(() => ({
+        message: response.statusText,
+      }));
+      throw {
+        status: response.status,
+        message: errorData.message || this.getErrorMessage(response.status),
+      };
+    }
+    // Expected content-type: application/octet-stream or similar
+    return response.blob();
+  } catch (error: any) {
+    if (error.status) throw error;
+    throw {
+      status: 0,
+      message: error.message || 'Failed to view modality.',
+    };
+  }
+}
+
+/**
+ * Clear all data from the AI server.
+ * @returns Confirmation message
+ */
+async clearAll3DData(): Promise<{ message: string }> {
+  return this.makeRequest('/3dpredict/clear', 'DELETE');
+}
 
   // ============ Health Check Endpoint ============
 

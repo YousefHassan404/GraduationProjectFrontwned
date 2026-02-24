@@ -66,6 +66,26 @@ export function Layout({ children }: { children: React.ReactNode }) {
                       Profile
                     </Button>
                   </Link>
+                  <Link to="/predict">
+                    <Button
+                      variant={isActive("/predict") ? "default" : "ghost"}
+                      size="sm"
+                      className="gap-2"
+                    >
+                      <Settings size={18} />
+                      Predict
+                    </Button>
+                  </Link>
+                  <Link to="/predict3d">
+                    <Button
+                      variant={isActive("/predict3d") ? "default" : "ghost"}
+                      size="sm"
+                      className="gap-2"
+                    >
+                      <Settings size={18} />
+                      Predict 3D
+                    </Button>
+                  </Link>
                 </>
               )}
             </div>

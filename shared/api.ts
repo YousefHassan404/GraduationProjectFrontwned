@@ -17,6 +17,27 @@ export interface UserProfile {
   createdAt?: string;
 }
 
+export interface PredictionResponse2D {
+  success: boolean;
+  prediction_id: string;
+  segmentation: {
+    prediction: string;      // "Glioma", "Meningioma", "Pituitary", "No Tumor"
+    class_id: number;        // 0,1,2,3
+  };
+  classification: {
+    prediction: string;      // نفس اسم الورم
+    confidence: number;      // مثلاً 0.95 (يجب تحويله إلى نسبة مئوية)
+    probabilities: Record<string, number>; // نفس الشيء، قيم بين 0 و 1
+  } | null;                  // يكون null في حالة No Tumor
+  final_decision: string;    // "Tumor Detected" أو "No Tumor"
+  images: {
+    original: string;        // رابط الصورة الأصلية
+    blended: string;         // الصورة مع الـ mask متراكب
+    mask: string;            // الـ mask فقط
+  };
+  createdAt: string;         // تاريخ
+}
+
 export interface AuthRequest {
   name?: string;
   email: string;
@@ -110,6 +131,19 @@ export interface PDFReportRequest {
   sessionId: string;
   audience: "doctor" | "patient";
 }
+
+// ============ Prediction Types ============
+export interface PredictionResponse {
+  prediction: string;
+  confidence: number;
+  probabilities?: Record<string, number>;
+  imageUrl?: string;
+  model_info?: string;
+}
+
+
+// تعريف واجهة الاستجابة الجديدة
+
 
 // ============ Health Check Types ============
 export interface HealthCheckResponse {

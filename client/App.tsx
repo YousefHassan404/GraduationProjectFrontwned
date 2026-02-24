@@ -16,6 +16,9 @@ import Login from "./pages/Login";
 import Profile from "./pages/Profile";
 import Chat from "./pages/Chat";
 import Records from "./pages/Records";
+import Predict from "./pages/Predict";
+import Predict3d from "./pages/Predict3d";
+
 
 const queryClient = new QueryClient();
 
@@ -33,6 +36,8 @@ const App = () => (
             <Route path="/profile" element={<Profile />} />
             <Route path="/chat" element={<Chat />} />
             <Route path="/records" element={<Records />} />
+            <Route path="/predict" element={<Predict />} />
+            <Route path="/predict3d" element={<Predict3d />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
