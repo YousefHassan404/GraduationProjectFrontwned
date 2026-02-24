@@ -46,9 +46,7 @@ function expressPlugin(): Plugin {
     name: "express-plugin",
     apply: "serve", // يعمل في وضع dev فقط
     configureServer(viteServer) {
-      const app = createServer();
-
-      // ربط Express مع Vite
+      const app = createServer(); // هذا سيرفر Express
       viteServer.middlewares.use(app);
     },
   };
