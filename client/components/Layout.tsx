@@ -17,91 +17,48 @@ export function Layout({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-slate-50">
+    <div className="min-h-screen bg-gradient-to-br from-[#0f172a] via-[#0b1120] to-[#020617] text-slate-200">
+      
       {/* Navigation */}
-      <nav className="sticky top-0 z-50 border-b border-slate-200 bg-white/80 backdrop-blur-md">
+      <nav className="sticky top-0 z-50 border-b border-slate-800 bg-white/5 backdrop-blur-xl shadow-lg">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
+            
             {/* Logo */}
-            <Link to="/" className="flex items-center gap-2 group">
-              <div className="w-8 h-8 bg-gradient-to-br from-blue-600 to-blue-700 rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-lg">🧠</span>
+            <Link to="/" className="flex items-center gap-3 group">
+              <div className="w-9 h-9 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-md shadow-blue-500/30">
+                <span className="text-white font-bold text-lg">B</span>
               </div>
-              <span className="font-bold text-lg text-slate-900 group-hover:text-blue-600 transition">
-                NeuroAnalyze
+              <span className="font-bold text-xl tracking-wide group-hover:text-blue-400 transition">
+                Brain Care
               </span>
             </Link>
 
             {/* Desktop Menu */}
-            <div className="hidden md:flex items-center gap-1">
+            <div className="hidden md:flex items-center gap-2">
               {isAuthenticated && (
                 <>
-                  <Link to="/chat">
-                    <Button
-                      variant={isActive("/chat") ? "default" : "ghost"}
-                      size="sm"
-                      className="gap-2"
-                    >
-                      <MessageSquare size={18} />
-                      Chat
-                    </Button>
-                  </Link>
-                  <Link to="/records">
-                    <Button
-                      variant={isActive("/records") ? "default" : "ghost"}
-                      size="sm"
-                      className="gap-2"
-                    >
-                      <Upload size={18} />
-                      Records
-                    </Button>
-                  </Link>
-                  <Link to="/profile">
-                    <Button
-                      variant={isActive("/profile") ? "default" : "ghost"}
-                      size="sm"
-                      className="gap-2"
-                    >
-                      <User size={18} />
-                      Profile
-                    </Button>
-                  </Link>
-                  <Link to="/predict">
-                    <Button
-                      variant={isActive("/predict") ? "default" : "ghost"}
-                      size="sm"
-                      className="gap-2"
-                    >
-                      <Settings size={18} />
-                      Predict
-                    </Button>
-                  </Link>
-                  <Link to="/predict3d">
-                    <Button
-                      variant={isActive("/predict3d") ? "default" : "ghost"}
-                      size="sm"
-                      className="gap-2"
-                    >
-                      <Settings size={18} />
-                      Predict 3D
-                    </Button>
-                  </Link>
+                  <NavButton to="/chat" icon={<MessageSquare size={18} />} active={isActive("/chat")} label="Chat" />
+                  <NavButton to="/records" icon={<Upload size={18} />} active={isActive("/records")} label="Records" />
+                  <NavButton to="/profile" icon={<User size={18} />} active={isActive("/profile")} label="Profile" />
+                  <NavButton to="/predict" icon={<Settings size={18} />} active={isActive("/predict")} label="Predict 2D" />
+                  <NavButton to="/predict3d" icon={<Settings size={18} />} active={isActive("/predict3d")} label="Predict 3D" />
                 </>
               )}
             </div>
 
-            {/* Auth Buttons */}
-            <div className="hidden md:flex items-center gap-3">
+            {/* Auth Section */}
+            <div className="hidden md:flex items-center gap-4">
               {isAuthenticated ? (
                 <>
-                  <div className="text-sm text-slate-600">
-                    {user?.name}
+                  <div className="text-sm text-slate-400">
+                    Welcome, <span className="text-blue-400 font-medium">{user?.name}</span>
                   </div>
                   <Button
                     variant="outline"
                     size="sm"
                     onClick={handleLogout}
-                    className="gap-2"
+                    className="gap-2 border-slate-700 bg-slate-800 hover:bg-red-600 hover:border-red-500 transition-all duration-300"
                   >
                     <LogOut size={18} />
                     Logout
@@ -110,20 +67,22 @@ export function Layout({ children }: { children: React.ReactNode }) {
               ) : (
                 <>
                   <Link to="/login">
-                    <Button variant="outline" size="sm">
+                    <Button variant="outline" size="sm" className="border-slate-700 bg-slate-800 hover:bg-slate-700">
                       Login
                     </Button>
                   </Link>
                   <Link to="/register">
-                    <Button size="sm">Register</Button>
+                    <Button size="sm" className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:opacity-90">
+                      Register
+                    </Button>
                   </Link>
                 </>
               )}
             </div>
 
-            {/* Mobile Menu Button */}
+            {/* Mobile Button */}
             <button
-              className="md:hidden p-2 hover:bg-slate-100 rounded-lg transition"
+              className="md:hidden p-2 hover:bg-slate-800 rounded-lg transition"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             >
               {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
@@ -132,65 +91,29 @@ export function Layout({ children }: { children: React.ReactNode }) {
 
           {/* Mobile Menu */}
           {mobileMenuOpen && (
-            <div className="md:hidden pb-4 border-t border-slate-200">
-              {isAuthenticated && (
+            <div className="md:hidden pb-4 border-t border-slate-800 mt-3 pt-3 space-y-2">
+              {isAuthenticated ? (
                 <>
-                  <Link to="/chat" onClick={() => setMobileMenuOpen(false)}>
-                    <Button
-                      variant={isActive("/chat") ? "default" : "ghost"}
-                      size="sm"
-                      className="w-full justify-start gap-2 my-1"
-                    >
-                      <MessageSquare size={18} />
-                      Chat
-                    </Button>
-                  </Link>
-                  <Link to="/records" onClick={() => setMobileMenuOpen(false)}>
-                    <Button
-                      variant={isActive("/records") ? "default" : "ghost"}
-                      size="sm"
-                      className="w-full justify-start gap-2 my-1"
-                    >
-                      <Upload size={18} />
-                      Records
-                    </Button>
-                  </Link>
-                  <Link to="/profile" onClick={() => setMobileMenuOpen(false)}>
-                    <Button
-                      variant={isActive("/profile") ? "default" : "ghost"}
-                      size="sm"
-                      className="w-full justify-start gap-2 my-1"
-                    >
-                      <User size={18} />
-                      Profile
-                    </Button>
-                  </Link>
-                  <div className="border-t border-slate-200 my-2 pt-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={handleLogout}
-                      className="w-full gap-2 justify-start"
-                    >
-                      <LogOut size={18} />
-                      Logout
-                    </Button>
-                  </div>
+                  <MobileNav to="/chat" label="Chat" />
+                  <MobileNav to="/records" label="Records" />
+                  <MobileNav to="/profile" label="Profile" />
+                  <MobileNav to="/predict" label="Predict" />
+                  <MobileNav to="/predict3d" label="Predict 3D" />
+
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleLogout}
+                    className="w-full border-slate-700 bg-slate-800 hover:bg-red-600"
+                  >
+                    Logout
+                  </Button>
                 </>
-              )}
-              {!isAuthenticated && (
-                <div className="flex flex-col gap-2">
-                  <Link to="/login" onClick={() => setMobileMenuOpen(false)}>
-                    <Button variant="outline" size="sm" className="w-full">
-                      Login
-                    </Button>
-                  </Link>
-                  <Link to="/register" onClick={() => setMobileMenuOpen(false)}>
-                    <Button size="sm" className="w-full">
-                      Register
-                    </Button>
-                  </Link>
-                </div>
+              ) : (
+                <>
+                  <MobileNav to="/login" label="Login" />
+                  <MobileNav to="/register" label="Register" />
+                </>
               )}
             </div>
           )}
@@ -198,53 +121,82 @@ export function Layout({ children }: { children: React.ReactNode }) {
       </nav>
 
       {/* Main Content */}
-      <main className="min-h-[calc(100vh-64px)]">
+      <main className="min-h-[calc(100vh-64px)] px-4 sm:px-6 lg:px-8 py-8">
         {children}
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-slate-200 bg-white/50 backdrop-blur-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+      <footer className="border-t border-slate-800 bg-[#0b1120]">
+        <div className="max-w-7xl mx-auto px-6 py-10">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-8 text-slate-400">
             <div>
-              <h3 className="font-bold text-slate-900 mb-4">NeuroAnalyze</h3>
-              <p className="text-sm text-slate-600">
-                Advanced AI-powered brain tumor analysis system
+              <h3 className="font-bold text-lg text-white mb-3">Brain Care</h3>
+              <p className="text-sm leading-relaxed">
+                Advanced AI-powered brain tumor detection & 3D segmentation platform.
               </p>
             </div>
-            <div>
-              <h4 className="font-semibold text-slate-900 mb-3">Features</h4>
-              <ul className="space-y-2 text-sm text-slate-600">
-                <li><a href="#" className="hover:text-blue-600">AI Analysis</a></li>
-                <li><a href="#" className="hover:text-blue-600">Medical Records</a></li>
-                <li><a href="#" className="hover:text-blue-600">Reports</a></li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="font-semibold text-slate-900 mb-3">Support</h4>
-              <ul className="space-y-2 text-sm text-slate-600">
-                <li><a href="#" className="hover:text-blue-600">Documentation</a></li>
-                <li><a href="#" className="hover:text-blue-600">Help Center</a></li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="font-semibold text-slate-900 mb-3">Legal</h4>
-              <ul className="space-y-2 text-sm text-slate-600">
-                <li><a href="#" className="hover:text-blue-600">Privacy</a></li>
-                <li><a href="#" className="hover:text-blue-600">Terms</a></li>
-              </ul>
-            </div>
+
+            <FooterSection title="Features" items={["AI Detection", "3D Segmentation", "Reports", "Medical Records"]} />
+            <FooterSection title="Support" items={["Documentation", "Help Center", "Contact"]} />
+            <FooterSection title="Legal" items={["Privacy Policy", "Terms of Service"]} />
           </div>
-          <div className="border-t border-slate-200 mt-8 pt-8 flex justify-between items-center">
-            <p className="text-sm text-slate-600">
-              © 2025 NeuroAnalyze. All rights reserved.
-            </p>
-            <p className="text-sm text-slate-600">
-              Medical Grade AI Analysis
-            </p>
+
+          <div className="border-t border-slate-800 mt-10 pt-6 flex flex-col md:flex-row justify-between items-center text-sm text-slate-500">
+            <p>© 2026 Brain Care. All rights reserved.</p>
+            <p className="text-blue-400 font-medium">Powered By Yousef Hassan</p>
           </div>
         </div>
       </footer>
+    </div>
+  );
+}
+
+/* Components */
+
+function NavButton({ to, icon, active, label }: any) {
+  return (
+    <Link to={to}>
+      <Button
+        variant="ghost"
+        size="sm"
+        className={`gap-2 transition-all duration-300 ${
+          active
+            ? "bg-blue-600 text-white shadow-lg shadow-blue-600/30"
+            : "hover:bg-slate-800 hover:text-blue-400"
+        }`}
+      >
+        {icon}
+        {label}
+      </Button>
+    </Link>
+  );
+}
+
+function MobileNav({ to, label }: any) {
+  return (
+    <Link to={to}>
+      <Button
+        variant="ghost"
+        size="sm"
+        className="w-full justify-start hover:bg-slate-800"
+      >
+        {label}
+      </Button>
+    </Link>
+  );
+}
+
+function FooterSection({ title, items }: any) {
+  return (
+    <div>
+      <h4 className="font-semibold text-white mb-3">{title}</h4>
+      <ul className="space-y-2 text-sm">
+        {items.map((item: string, i: number) => (
+          <li key={i} className="hover:text-blue-400 cursor-pointer transition">
+            {item}
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }

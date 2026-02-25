@@ -20,6 +20,9 @@ import Predict from "./pages/Predict";
 import Predict3d from "./pages/Predict3d";
 
 
+import ScrollToTop from "./components/ScrollToTop"; 
+
+
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -29,6 +32,7 @@ const App = () => (
       <Sonner />
       <AuthProvider>
         <BrowserRouter>
+        <ScrollToTop />
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/register" element={<Register />} />

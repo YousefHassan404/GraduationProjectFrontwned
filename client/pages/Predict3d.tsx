@@ -1,6 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { apiClient } from '@/lib/api-client';
 import { Layout } from '@/components/Layout';
+import { Button } from "@/components/ui/button";
+import { Upload, Download, Eye, Loader2, AlertCircle, Trash2 } from "lucide-react";
 
 export default function Predict3d() {
   // File state for each modality
@@ -118,7 +120,7 @@ export default function Predict3d() {
     try {
       const blob = await apiClient.view3DModality(jobId, modalityIndex);
       const url = window.URL.createObjectURL(blob);
-      window.open(url, '_blank'); // open in new tab for download/view
+      window.open(url, '_blank');
     } catch (err: any) {
       setError(err.message || 'Failed to view modality.');
     }
@@ -143,178 +145,314 @@ export default function Predict3d() {
     }
   };
 
+  // Get modality name
+  const getModalityName = (index: number) => {
+    const names = ['T1', 'T1GD', 'T2', 'FLAIR'];
+    return names[index];
+  };
+
   return (
     <Layout>
-    <div className="min-h-screen bg-gray-100 py-8 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-4xl mx-auto">
-        <h1 className="text-3xl font-bold text-gray-900 mb-8">3D Brain Tumor Segmentation</h1>
+      <div className="max-w-5xl mx-auto space-y-8">
+        {/* Header */}
+        <div className="text-center md:text-left">
+          <h1 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-blue-400 to-indigo-400 bg-clip-text text-transparent">
+            3D Brain Tumor Segmentation
+          </h1>
+          <p className="text-slate-400 mt-2">
+            Upload multi-modal MRI scans for advanced 3D tumor analysis and segmentation
+          </p>
+        </div>
 
         {/* File Upload Section */}
-        <div className="bg-white shadow overflow-hidden sm:rounded-lg mb-8">
-          <div className="px-4 py-5 sm:px-6">
-            <h2 className="text-lg leading-6 font-medium text-gray-900">Upload MRI Modalities</h2>
-            <p className="mt-1 max-w-2xl text-sm text-gray-500">Select the four required NIfTI files (.nii.gz).</p>
+        <div className="bg-slate-800/50 backdrop-blur-sm border border-slate-700 rounded-2xl shadow-xl overflow-hidden">
+          <div className="px-6 py-5 border-b border-slate-700">
+            <h2 className="text-xl font-semibold text-white flex items-center gap-2">
+              <Upload className="w-5 h-5 text-blue-400" />
+              Upload MRI Modalities
+            </h2>
+            <p className="text-sm text-slate-400 mt-1">
+              Select the four required NIfTI files (.nii.gz or .nii)
+            </p>
           </div>
-          <div className="border-t border-gray-200">
-            <div className="px-4 py-5 sm:p-6">
-              <div className="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-2">
-                {/* T1 */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">T1-weighted</label>
+          
+          <div className="p-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* T1 */}
+              <div className="space-y-2">
+                <label className="block text-sm font-medium text-slate-300">
+                  T1-weighted <span className="text-red-400">*</span>
+                </label>
+                <div className="relative">
                   <input
                     type="file"
                     accept=".nii.gz,.nii"
                     onChange={(e) => handleFileChange(e, setT1File)}
-                    className="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                    className="block w-full text-sm text-slate-400
+                      file:mr-4 file:py-2.5 file:px-4
+                      file:rounded-lg file:border-0
+                      file:text-sm file:font-semibold
+                      file:bg-blue-600 file:text-white
+                      hover:file:bg-blue-700
+                      file:cursor-pointer file:transition-colors
+                      bg-slate-900/50 rounded-lg border border-slate-700
+                      cursor-pointer"
                   />
-                  {t1File && <p className="mt-1 text-xs text-gray-500">{t1File.name}</p>}
                 </div>
+                {t1File && (
+                  <p className="text-xs text-slate-500 truncate">
+                    Selected: {t1File.name}
+                  </p>
+                )}
+              </div>
 
-                {/* T1GD */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">T1-contrast enhanced (T1GD)</label>
+              {/* T1GD */}
+              <div className="space-y-2">
+                <label className="block text-sm font-medium text-slate-300">
+                  T1-contrast enhanced (T1GD) <span className="text-red-400">*</span>
+                </label>
+                <div className="relative">
                   <input
                     type="file"
                     accept=".nii.gz,.nii"
                     onChange={(e) => handleFileChange(e, setT1gdFile)}
-                    className="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                    className="block w-full text-sm text-slate-400
+                      file:mr-4 file:py-2.5 file:px-4
+                      file:rounded-lg file:border-0
+                      file:text-sm file:font-semibold
+                      file:bg-blue-600 file:text-white
+                      hover:file:bg-blue-700
+                      file:cursor-pointer file:transition-colors
+                      bg-slate-900/50 rounded-lg border border-slate-700
+                      cursor-pointer"
                   />
-                  {t1gdFile && <p className="mt-1 text-xs text-gray-500">{t1gdFile.name}</p>}
                 </div>
+                {t1gdFile && (
+                  <p className="text-xs text-slate-500 truncate">
+                    Selected: {t1gdFile.name}
+                  </p>
+                )}
+              </div>
 
-                {/* T2 */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">T2-weighted</label>
+              {/* T2 */}
+              <div className="space-y-2">
+                <label className="block text-sm font-medium text-slate-300">
+                  T2-weighted <span className="text-red-400">*</span>
+                </label>
+                <div className="relative">
                   <input
                     type="file"
                     accept=".nii.gz,.nii"
                     onChange={(e) => handleFileChange(e, setT2File)}
-                    className="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                    className="block w-full text-sm text-slate-400
+                      file:mr-4 file:py-2.5 file:px-4
+                      file:rounded-lg file:border-0
+                      file:text-sm file:font-semibold
+                      file:bg-blue-600 file:text-white
+                      hover:file:bg-blue-700
+                      file:cursor-pointer file:transition-colors
+                      bg-slate-900/50 rounded-lg border border-slate-700
+                      cursor-pointer"
                   />
-                  {t2File && <p className="mt-1 text-xs text-gray-500">{t2File.name}</p>}
                 </div>
+                {t2File && (
+                  <p className="text-xs text-slate-500 truncate">
+                    Selected: {t2File.name}
+                  </p>
+                )}
+              </div>
 
-                {/* FLAIR */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">FLAIR</label>
+              {/* FLAIR */}
+              <div className="space-y-2">
+                <label className="block text-sm font-medium text-slate-300">
+                  FLAIR <span className="text-red-400">*</span>
+                </label>
+                <div className="relative">
                   <input
                     type="file"
                     accept=".nii.gz,.nii"
                     onChange={(e) => handleFileChange(e, setFlairFile)}
-                    className="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                    className="block w-full text-sm text-slate-400
+                      file:mr-4 file:py-2.5 file:px-4
+                      file:rounded-lg file:border-0
+                      file:text-sm file:font-semibold
+                      file:bg-blue-600 file:text-white
+                      hover:file:bg-blue-700
+                      file:cursor-pointer file:transition-colors
+                      bg-slate-900/50 rounded-lg border border-slate-700
+                      cursor-pointer"
                   />
-                  {flairFile && <p className="mt-1 text-xs text-gray-500">{flairFile.name}</p>}
                 </div>
-              </div>
-
-              <div className="mt-6 flex items-center space-x-4">
-                <button
-                  onClick={handleSubmit}
-                  disabled={isUploading || status === 'processing'}
-                  className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  {isUploading ? 'Uploading...' : 'Start Segmentation'}
-                </button>
-
-                {jobId && (
-                  <button
-                    onClick={handleClearAll}
-                    className="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-                  >
-                    Clear All Data
-                  </button>
+                {flairFile && (
+                  <p className="text-xs text-slate-500 truncate">
+                    Selected: {flairFile.name}
+                  </p>
                 )}
               </div>
+            </div>
 
-              {error && (
-                <div className="mt-4 rounded-md bg-red-50 p-4">
-                  <div className="flex">
-                    <div className="ml-3">
-                      <h3 className="text-sm font-medium text-red-800">Error</h3>
-                      <div className="mt-2 text-sm text-red-700">{error}</div>
-                    </div>
-                  </div>
-                </div>
+            {/* Action Buttons */}
+            <div className="mt-8 flex flex-wrap items-center gap-4">
+              <Button
+                onClick={handleSubmit}
+                disabled={isUploading || status === 'processing'}
+                className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-lg shadow-blue-600/25"
+              >
+                {isUploading ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    Uploading...
+                  </>
+                ) : (
+                  <>
+                    <Upload className="w-4 h-4 mr-2" />
+                    Start Segmentation
+                  </>
+                )}
+              </Button>
+
+              {jobId && (
+                <Button
+                  variant="outline"
+                  onClick={handleClearAll}
+                  className="border-slate-700 bg-slate-800 hover:bg-red-600/20 hover:border-red-500/50 hover:text-red-400"
+                >
+                  <Trash2 className="w-4 h-4 mr-2" />
+                  Clear All Data
+                </Button>
               )}
             </div>
+
+            {/* Error Message */}
+            {error && (
+              <div className="mt-6 rounded-lg bg-red-500/10 border border-red-500/50 p-4">
+                <div className="flex items-start gap-3">
+                  <AlertCircle className="w-5 h-5 text-red-400 flex-shrink-0 mt-0.5" />
+                  <div className="flex-1">
+                    <h3 className="text-sm font-medium text-red-400">Error</h3>
+                    <p className="text-sm text-red-300 mt-1">{error}</p>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         </div>
 
         {/* Status and Results */}
         {(status === 'processing' || status === 'completed') && (
-          <div className="bg-white shadow overflow-hidden sm:rounded-lg mb-8">
-            <div className="px-4 py-5 sm:px-6">
-              <h2 className="text-lg leading-6 font-medium text-gray-900">Job Status</h2>
-              <p className="mt-1 max-w-2xl text-sm text-gray-500">Job ID: {jobId}</p>
+          <div className="bg-slate-800/50 backdrop-blur-sm border border-slate-700 rounded-2xl shadow-xl overflow-hidden">
+            <div className="px-6 py-5 border-b border-slate-700">
+              <h2 className="text-xl font-semibold text-white flex items-center gap-2">
+                {status === 'processing' ? (
+                  <>
+                    <Loader2 className="w-5 h-5 text-blue-400 animate-spin" />
+                    Processing Job
+                  </>
+                ) : (
+                  <>
+                    <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
+                    Segmentation Complete
+                  </>
+                )}
+              </h2>
+              {jobId && (
+                <p className="text-sm text-slate-400 mt-1">
+                  Job ID: <span className="font-mono text-blue-400">{jobId}</span>
+                </p>
+              )}
             </div>
-            <div className="border-t border-gray-200 px-4 py-5 sm:p-6">
+            
+            <div className="p-6">
               {status === 'processing' && (
-                <div className="flex items-center space-x-3">
-                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-600"></div>
-                  <span className="text-sm text-gray-700">Processing your scan... This may take a minute.</span>
+                <div className="flex flex-col items-center justify-center py-12">
+                  <div className="relative">
+                    <div className="w-16 h-16 border-4 border-slate-700 border-t-blue-500 rounded-full animate-spin"></div>
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-full opacity-20 animate-pulse"></div>
+                    </div>
+                  </div>
+                  <p className="text-slate-300 mt-6 text-center">
+                    Processing your scan... This may take a minute.
+                  </p>
+                  <p className="text-sm text-slate-500 mt-2 text-center max-w-md">
+                    Our AI model is analyzing the multi-modal MRI data and generating a 3D segmentation map.
+                  </p>
                 </div>
               )}
 
               {status === 'completed' && metrics && (
-                <div>
-                  <h3 className="text-md font-medium text-gray-900 mb-3">Segmentation Results</h3>
-                  <dl className="grid grid-cols-1 gap-x-4 gap-y-4 sm:grid-cols-2">
-                    <div className="bg-gray-50 px-4 py-3 sm:rounded-lg">
-                      <dt className="text-sm font-medium text-gray-500">Tumor Type</dt>
-                      <dd className="mt-1 text-sm text-gray-900 capitalize">{metrics.tumor_type}</dd>
+                <div className="space-y-6">
+                  {/* Metrics Grid */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {/* Tumor Type */}
+                    <div className="bg-slate-900/50 rounded-xl p-4 border border-slate-700">
+                      <p className="text-sm text-slate-400 mb-1">Tumor Type</p>
+                      <p className="text-xl font-semibold text-white capitalize">{metrics.tumor_type}</p>
+                      <p className="text-xs text-slate-500 mt-1">
+                        Confidence: {(metrics.classification_confidence * 100).toFixed(1)}%
+                      </p>
                     </div>
-                    <div className="bg-gray-50 px-4 py-3 sm:rounded-lg">
-                      <dt className="text-sm font-medium text-gray-500">Classification Confidence</dt>
-                      <dd className="mt-1 text-sm text-gray-900">{(metrics.classification_confidence * 100).toFixed(1)}%</dd>
-                    </div>
-                    <div className="bg-gray-50 px-4 py-3 sm:rounded-lg">
-                      <dt className="text-sm font-medium text-gray-500">NCR (Necrotic Core)</dt>
-                      <dd className="mt-1 text-sm text-gray-900">{metrics.NCR.volume_cm3.toFixed(1)} cm³ (conf: {(metrics.NCR.confidence * 100).toFixed(0)}%)</dd>
-                    </div>
-                    <div className="bg-gray-50 px-4 py-3 sm:rounded-lg">
-                      <dt className="text-sm font-medium text-gray-500">ED (Edema)</dt>
-                      <dd className="mt-1 text-sm text-gray-900">{metrics.ED.volume_cm3.toFixed(1)} cm³ (conf: {(metrics.ED.confidence * 100).toFixed(0)}%)</dd>
-                    </div>
-                    <div className="bg-gray-50 px-4 py-3 sm:rounded-lg">
-                      <dt className="text-sm font-medium text-gray-500">ET (Enhancing Tumor)</dt>
-                      <dd className="mt-1 text-sm text-gray-900">{metrics.ET.volume_cm3.toFixed(1)} cm³ (conf: {(metrics.ET.confidence * 100).toFixed(0)}%)</dd>
-                    </div>
-                    <div className="bg-gray-50 px-4 py-3 sm:rounded-lg">
-                      <dt className="text-sm font-medium text-gray-500">Total Tumor Volume</dt>
-                      <dd className="mt-1 text-sm text-gray-900">{metrics.Total.volume_cm3.toFixed(1)} cm³</dd>
-                    </div>
-                  </dl>
 
-                  {/* Action buttons for results */}
-                  <div className="mt-6 flex flex-wrap gap-3">
-                    <button
+                    {/* NCR */}
+                    <div className="bg-slate-900/50 rounded-xl p-4 border border-slate-700">
+                      <p className="text-sm text-slate-400 mb-1">Necrotic Core (NCR)</p>
+                      <p className="text-xl font-semibold text-white">{metrics.NCR.volume_cm3.toFixed(1)} cm³</p>
+                      <p className="text-xs text-slate-500 mt-1">
+                        Confidence: {(metrics.NCR.confidence * 100).toFixed(0)}%
+                      </p>
+                    </div>
+
+                    {/* ED */}
+                    <div className="bg-slate-900/50 rounded-xl p-4 border border-slate-700">
+                      <p className="text-sm text-slate-400 mb-1">Edema (ED)</p>
+                      <p className="text-xl font-semibold text-white">{metrics.ED.volume_cm3.toFixed(1)} cm³</p>
+                      <p className="text-xs text-slate-500 mt-1">
+                        Confidence: {(metrics.ED.confidence * 100).toFixed(0)}%
+                      </p>
+                    </div>
+
+                    {/* ET */}
+                    <div className="bg-slate-900/50 rounded-xl p-4 border border-slate-700">
+                      <p className="text-sm text-slate-400 mb-1">Enhancing Tumor (ET)</p>
+                      <p className="text-xl font-semibold text-white">{metrics.ET.volume_cm3.toFixed(1)} cm³</p>
+                      <p className="text-xs text-slate-500 mt-1">
+                        Confidence: {(metrics.ET.confidence * 100).toFixed(0)}%
+                      </p>
+                    </div>
+
+                    {/* Total Volume */}
+                    <div className="bg-slate-900/50 rounded-xl p-4 border border-slate-700 sm:col-span-2">
+                      <p className="text-sm text-slate-400 mb-1">Total Tumor Volume</p>
+                      <p className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-400">
+                        {metrics.Total.volume_cm3.toFixed(1)} cm³
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Action Buttons */}
+                  <div className="flex flex-wrap items-center gap-4 pt-4 border-t border-slate-700">
+                    <Button
                       onClick={handleDownloadMask}
-                      className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+                      className="bg-green-600 hover:bg-green-700 text-white shadow-lg shadow-green-600/25"
                     >
-                      Download Segmentation Mask (.nii.gz)
-                    </button>
+                      <Download className="w-4 h-4 mr-2" />
+                      Download Segmentation Mask
+                    </Button>
 
-                    <div className="relative inline-block text-left">
-                      <button
-                        type="button"
-                        className="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-                        id="menu-button"
-                        aria-expanded="true"
-                        aria-haspopup="true"
-                        onClick={() => {}} // This would open a dropdown; for simplicity we add separate buttons below
-                      >
-                        View Modality
-                        <svg className="-mr-1 ml-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                          <path fillRule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clipRule="evenodd" />
-                        </svg>
-                      </button>
-                      {/* Simple dropdown: we'll just render separate buttons for clarity */}
-                    </div>
-                    <div className="flex space-x-2 ml-2">
-                      <button onClick={() => handleViewModality(0)} className="px-3 py-2 border border-gray-300 text-xs font-medium rounded text-gray-700 bg-white hover:bg-gray-50">T1</button>
-                      <button onClick={() => handleViewModality(1)} className="px-3 py-2 border border-gray-300 text-xs font-medium rounded text-gray-700 bg-white hover:bg-gray-50">T1GD</button>
-                      <button onClick={() => handleViewModality(2)} className="px-3 py-2 border border-gray-300 text-xs font-medium rounded text-gray-700 bg-white hover:bg-gray-50">T2</button>
-                      <button onClick={() => handleViewModality(3)} className="px-3 py-2 border border-gray-300 text-xs font-medium rounded text-gray-700 bg-white hover:bg-gray-50">FLAIR</button>
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm text-slate-400 mr-2">View modalities:</span>
+                      {[0, 1, 2, 3].map((index) => (
+                        <Button
+                          key={index}
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleViewModality(index as 0 | 1 | 2 | 3)}
+                          className="border-slate-700 bg-slate-800 hover:bg-slate-700"
+                        >
+                          <Eye className="w-3 h-3 mr-1" />
+                          {getModalityName(index)}
+                        </Button>
+                      ))}
                     </div>
                   </div>
                 </div>
@@ -323,7 +461,6 @@ export default function Predict3d() {
           </div>
         )}
       </div>
-    </div>
     </Layout>
   );
 }

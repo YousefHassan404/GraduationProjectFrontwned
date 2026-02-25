@@ -31,7 +31,6 @@ export default function Register() {
     e.preventDefault();
     setError("");
 
-    // Validation
     if (!formData.name.trim()) {
       setError("Name is required");
       return;
@@ -54,7 +53,12 @@ export default function Register() {
 
     try {
       setIsLoading(true);
-      await register(formData.name, formData.email, formData.password, formData.role);
+      await register(
+        formData.name,
+        formData.email,
+        formData.password,
+        formData.role
+      );
       navigate("/");
     } catch (err: any) {
       setError(getErrorMessage(err));
@@ -65,84 +69,85 @@ export default function Register() {
 
   return (
     <Layout>
-      <div className="min-h-[calc(100vh-64px)] flex items-center justify-center py-12 px-4">
-        <div className="w-full max-w-md">
+      <div className="relative min-h-[calc(100vh-64px)] flex items-center justify-center px-4 py-16">
+
+        {/* Background Glow */}
+        <div className="absolute -top-32 -left-32 w-80 h-80 bg-blue-600/20 rounded-full blur-3xl"></div>
+        <div className="absolute -bottom-32 -right-32 w-80 h-80 bg-indigo-600/20 rounded-full blur-3xl"></div>
+
+        <div className="relative w-full max-w-md z-10">
+
           {/* Header */}
-          <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold text-slate-900 mb-2">Create Account</h1>
-            <p className="text-slate-600">
-              Join NeuroAnalyze and start analyzing brain tumors
+          <div className="text-center mb-10">
+            <h1 className="text-3xl font-bold text-white mb-2">
+              Create Account
+            </h1>
+            <p className="text-slate-400">
+              Join Brain Care and start AI-powered analysis
             </p>
           </div>
 
-          {/* Card */}
-          <div className="bg-white/80 backdrop-blur rounded-xl border border-slate-200 p-8">
+          {/* Glass Card */}
+          <div className="bg-white/5 backdrop-blur-2xl border border-slate-800 rounded-2xl p-8 shadow-xl shadow-blue-600/10">
+
             {error && (
-              <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg flex gap-3">
-                <AlertCircle size={20} className="text-red-600 flex-shrink-0 mt-0.5" />
-                <p className="text-red-700 text-sm">{error}</p>
+              <div className="mb-6 p-4 bg-red-500/10 border border-red-500/30 rounded-lg flex gap-3">
+                <AlertCircle size={20} className="text-red-400 flex-shrink-0 mt-0.5" />
+                <p className="text-red-300 text-sm">{error}</p>
               </div>
             )}
 
-            <form onSubmit={handleSubmit} className="space-y-4">
-              {/* Name Field */}
+            <form onSubmit={handleSubmit} className="space-y-6">
+
+              {/* Name */}
               <div>
-                <label htmlFor="name" className="block text-sm font-medium text-slate-900 mb-2">
+                <label className="block text-sm font-medium text-slate-300 mb-2">
                   Full Name
                 </label>
                 <div className="relative">
-                  <User
-                    size={18}
-                    className="absolute left-3 top-3 text-slate-400"
-                  />
+                  <User size={18} className="absolute left-3 top-3 text-slate-500" />
                   <input
                     type="text"
-                    id="name"
                     name="name"
                     value={formData.name}
                     onChange={handleChange}
                     placeholder="Ahmed Ali"
-                    className="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
                     disabled={isLoading}
+                    className="w-full pl-10 pr-4 py-3 bg-slate-900/50 border border-slate-700 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
                   />
                 </div>
               </div>
 
-              {/* Email Field */}
+              {/* Email */}
               <div>
-                <label htmlFor="email" className="block text-sm font-medium text-slate-900 mb-2">
+                <label className="block text-sm font-medium text-slate-300 mb-2">
                   Email Address
                 </label>
                 <div className="relative">
-                  <Mail
-                    size={18}
-                    className="absolute left-3 top-3 text-slate-400"
-                  />
+                  <Mail size={18} className="absolute left-3 top-3 text-slate-500" />
                   <input
                     type="email"
-                    id="email"
                     name="email"
                     value={formData.email}
                     onChange={handleChange}
-                    placeholder="ahmed@example.com"
-                    className="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+                    placeholder="example@email.com"
                     disabled={isLoading}
+                    className="w-full pl-10 pr-4 py-3 bg-slate-900/50 border border-slate-700 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
                   />
                 </div>
               </div>
 
-              {/* Role Field */}
+              {/* Role */}
               <div>
-                <label htmlFor="role" className="block text-sm font-medium text-slate-900 mb-2">
+                <label className="block text-sm font-medium text-slate-300 mb-2">
                   Account Type
                 </label>
                 <select
-                  id="role"
                   name="role"
                   value={formData.role}
                   onChange={handleChange}
-                  className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition bg-white"
                   disabled={isLoading}
+                  className="w-full px-4 py-3 bg-slate-900/50 border border-slate-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
                 >
                   <option value="patient">Patient</option>
                   <option value="doctor">Doctor</option>
@@ -150,58 +155,50 @@ export default function Register() {
                 </select>
               </div>
 
-              {/* Password Field */}
+              {/* Password */}
               <div>
-                <label htmlFor="password" className="block text-sm font-medium text-slate-900 mb-2">
+                <label className="block text-sm font-medium text-slate-300 mb-2">
                   Password
                 </label>
                 <div className="relative">
-                  <Lock
-                    size={18}
-                    className="absolute left-3 top-3 text-slate-400"
-                  />
+                  <Lock size={18} className="absolute left-3 top-3 text-slate-500" />
                   <input
                     type="password"
-                    id="password"
                     name="password"
                     value={formData.password}
                     onChange={handleChange}
                     placeholder="••••••••"
-                    className="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
                     disabled={isLoading}
+                    className="w-full pl-10 pr-4 py-3 bg-slate-900/50 border border-slate-700 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
                   />
                 </div>
               </div>
 
-              {/* Confirm Password Field */}
+              {/* Confirm Password */}
               <div>
-                <label htmlFor="confirmPassword" className="block text-sm font-medium text-slate-900 mb-2">
+                <label className="block text-sm font-medium text-slate-300 mb-2">
                   Confirm Password
                 </label>
                 <div className="relative">
-                  <Lock
-                    size={18}
-                    className="absolute left-3 top-3 text-slate-400"
-                  />
+                  <Lock size={18} className="absolute left-3 top-3 text-slate-500" />
                   <input
                     type="password"
-                    id="confirmPassword"
                     name="confirmPassword"
                     value={formData.confirmPassword}
                     onChange={handleChange}
                     placeholder="••••••••"
-                    className="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
                     disabled={isLoading}
+                    className="w-full pl-10 pr-4 py-3 bg-slate-900/50 border border-slate-700 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
                   />
                 </div>
               </div>
 
-              {/* Submit Button */}
+              {/* Button */}
               <Button
                 type="submit"
                 disabled={isLoading}
-                className="w-full gap-2"
                 size="lg"
+                className="w-full gap-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:opacity-90 shadow-lg shadow-blue-600/30 transition-all"
               >
                 {isLoading && <Loader2 size={20} className="animate-spin" />}
                 {isLoading ? "Creating Account..." : "Create Account"}
@@ -209,14 +206,16 @@ export default function Register() {
             </form>
 
             {/* Footer */}
-            <div className="mt-6 text-center">
-              <p className="text-slate-600">
-                Already have an account?{" "}
-                <Link to="/login" className="text-blue-600 hover:text-blue-700 font-medium">
-                  Sign in
-                </Link>
-              </p>
+            <div className="mt-8 text-center text-sm text-slate-400">
+              Already have an account?{" "}
+              <Link
+                to="/login"
+                className="text-blue-400 hover:text-blue-300 font-medium transition"
+              >
+                Sign in
+              </Link>
             </div>
+
           </div>
         </div>
       </div>
