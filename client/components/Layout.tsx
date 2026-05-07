@@ -1,8 +1,24 @@
-import { useAuth } from "@/lib/auth-context";
-import { Link, useLocation } from "react-router-dom";
-import { Button } from "@/components/ui/button";
-import { Menu, X, LogOut, User, MessageSquare, Upload, Settings } from "lucide-react";
-import { useState } from "react";
+import { useAuth } from '@/lib/auth-context';
+import { hasPermission, UserRole } from '@/lib/roles';
+import { Link, useLocation } from 'react-router-dom';
+import { Button } from '@/components/ui/button';
+import {
+  Menu, X, LogOut, User,
+  MessageSquare, Upload, Settings, Brain,
+} from 'lucide-react';
+import { useState } from 'react';
+
+// ─── Nav items config ─────────────────────────────────────────────────────────
+// permission: undefined → visible to all authenticated users
+const NAV_ITEMS = [
+  { to: '/chat', label: 'Chat', icon: MessageSquare, permission: 'USE_CHAT' },
+  { to: '/predict', label: 'Predict 2D', icon: Settings, permission: 'PREDICT_2D' },
+  { to: '/predict3d', label: 'Predict 3D', icon: Brain, permission: 'PREDICT_3D' },
+  { to: '/records', label: 'Records', icon: Upload, permission: 'VIEW_RECORDS' },
+  { to: '/profile', label: 'Profile', icon: User, permission: undefined },
+] as const;
+
+// ─────────────────────────────────────────────────────────────────────────────
 
 export function Layout({ children }: { children: React.ReactNode }) {
   const { isAuthenticated, user, logout } = useAuth();
@@ -13,17 +29,24 @@ export function Layout({ children }: { children: React.ReactNode }) {
 
   const handleLogout = () => {
     logout();
-    window.location.href = "/";
+    window.location.href = '/';
   };
+
+  // Visible nav items for the current user
+  const visibleItems = NAV_ITEMS.filter(({ permission }) => {
+    if (!isAuthenticated) return false;
+    if (!permission) return true;                                   // no restriction
+    return hasPermission(user?.role as UserRole, permission);
+  });
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#0f172a] via-[#0b1120] to-[#020617] text-slate-200">
-      
-      {/* Navigation */}
+
+      {/* ── Navigation ─────────────────────────────────────────────────────── */}
       <nav className="sticky top-0 z-50 border-b border-slate-800 bg-white/5 backdrop-blur-xl shadow-lg">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
-            
+
             {/* Logo */}
             <Link to="/" className="flex items-center gap-3 group">
               <div className="w-9 h-9 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-md shadow-blue-500/30">
@@ -36,15 +59,9 @@ export function Layout({ children }: { children: React.ReactNode }) {
 
             {/* Desktop Menu */}
             <div className="hidden md:flex items-center gap-2">
-              {isAuthenticated && (
-                <>
-                  <NavButton to="/chat" icon={<MessageSquare size={18} />} active={isActive("/chat")} label="Chat" />
-                  <NavButton to="/records" icon={<Upload size={18} />} active={isActive("/records")} label="Records" />
-                  <NavButton to="/profile" icon={<User size={18} />} active={isActive("/profile")} label="Profile" />
-                  <NavButton to="/predict" icon={<Settings size={18} />} active={isActive("/predict")} label="Predict 2D" />
-                  <NavButton to="/predict3d" icon={<Settings size={18} />} active={isActive("/predict3d")} label="Predict 3D" />
-                </>
-              )}
+              {visibleItems.map(({ to, label, icon: Icon }) => (
+                <NavButton key={to} to={to} icon={<Icon size={18} />} active={isActive(to)} label={label} />
+              ))}
             </div>
 
             {/* Auth Section */}
@@ -52,7 +69,11 @@ export function Layout({ children }: { children: React.ReactNode }) {
               {isAuthenticated ? (
                 <>
                   <div className="text-sm text-slate-400">
-                    Welcome, <span className="text-blue-400 font-medium">{user?.name}</span>
+                    Welcome,{' '}
+                    <span className="text-blue-400 font-medium">{user?.name}</span>
+                    <span className="ml-2 text-xs bg-slate-700 text-slate-300 px-2 py-0.5 rounded-full capitalize">
+                      {user?.role}
+                    </span>
                   </div>
                   <Button
                     variant="outline"
@@ -80,7 +101,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
               )}
             </div>
 
-            {/* Mobile Button */}
+            {/* Mobile toggle */}
             <button
               className="md:hidden p-2 hover:bg-slate-800 rounded-lg transition"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
@@ -94,12 +115,9 @@ export function Layout({ children }: { children: React.ReactNode }) {
             <div className="md:hidden pb-4 border-t border-slate-800 mt-3 pt-3 space-y-2">
               {isAuthenticated ? (
                 <>
-                  <MobileNav to="/chat" label="Chat" />
-                  <MobileNav to="/records" label="Records" />
-                  <MobileNav to="/profile" label="Profile" />
-                  <MobileNav to="/predict" label="Predict" />
-                  <MobileNav to="/predict3d" label="Predict 3D" />
-
+                  {visibleItems.map(({ to, label }) => (
+                    <MobileNav key={to} to={to} label={label} onNavigate={() => setMobileMenuOpen(false)} />
+                  ))}
                   <Button
                     variant="outline"
                     size="sm"
@@ -111,8 +129,8 @@ export function Layout({ children }: { children: React.ReactNode }) {
                 </>
               ) : (
                 <>
-                  <MobileNav to="/login" label="Login" />
-                  <MobileNav to="/register" label="Register" />
+                  <MobileNav to="/login" label="Login" onNavigate={() => setMobileMenuOpen(false)} />
+                  <MobileNav to="/register" label="Register" onNavigate={() => setMobileMenuOpen(false)} />
                 </>
               )}
             </div>
@@ -120,12 +138,12 @@ export function Layout({ children }: { children: React.ReactNode }) {
         </div>
       </nav>
 
-      {/* Main Content */}
+      {/* ── Main Content ───────────────────────────────────────────────────── */}
       <main className="min-h-[calc(100vh-64px)] px-4 sm:px-6 lg:px-8 py-8">
         {children}
       </main>
 
-      {/* Footer */}
+      {/* ── Footer ─────────────────────────────────────────────────────────── */}
       <footer className="border-t border-slate-800 bg-[#0b1120]">
         <div className="max-w-7xl mx-auto px-6 py-10">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8 text-slate-400">
@@ -135,12 +153,10 @@ export function Layout({ children }: { children: React.ReactNode }) {
                 Advanced AI-powered brain tumor detection & 3D segmentation platform.
               </p>
             </div>
-
-            <FooterSection title="Features" items={["AI Detection", "3D Segmentation", "Reports", "Medical Records"]} />
-            <FooterSection title="Support" items={["Documentation", "Help Center", "Contact"]} />
-            <FooterSection title="Legal" items={["Privacy Policy", "Terms of Service"]} />
+            <FooterSection title="Features" items={['AI Detection', '3D Segmentation', 'Reports', 'Medical Records']} />
+            <FooterSection title="Support" items={['Documentation', 'Help Center', 'Contact']} />
+            <FooterSection title="Legal" items={['Privacy Policy', 'Terms of Service']} />
           </div>
-
           <div className="border-t border-slate-800 mt-10 pt-6 flex flex-col md:flex-row justify-between items-center text-sm text-slate-500">
             <p>© 2026 Brain Care. All rights reserved.</p>
             <p className="text-blue-400 font-medium">Powered By Yousef Hassan</p>
@@ -151,19 +167,18 @@ export function Layout({ children }: { children: React.ReactNode }) {
   );
 }
 
-/* Components */
+// ─── Sub-components ───────────────────────────────────────────────────────────
 
-function NavButton({ to, icon, active, label }: any) {
+function NavButton({ to, icon, active, label }: { to: string; icon: React.ReactNode; active: boolean; label: string }) {
   return (
     <Link to={to}>
       <Button
         variant="ghost"
         size="sm"
-        className={`gap-2 transition-all duration-300 ${
-          active
-            ? "bg-blue-600 text-white shadow-lg shadow-blue-600/30"
-            : "hover:bg-slate-800 hover:text-blue-400"
-        }`}
+        className={`gap-2 transition-all duration-300 ${active
+            ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30'
+            : 'hover:bg-slate-800 hover:text-blue-400'
+          }`}
       >
         {icon}
         {label}
@@ -172,29 +187,23 @@ function NavButton({ to, icon, active, label }: any) {
   );
 }
 
-function MobileNav({ to, label }: any) {
+function MobileNav({ to, label, onNavigate }: { to: string; label: string; onNavigate: () => void }) {
   return (
-    <Link to={to}>
-      <Button
-        variant="ghost"
-        size="sm"
-        className="w-full justify-start hover:bg-slate-800"
-      >
+    <Link to={to} onClick={onNavigate}>
+      <Button variant="ghost" size="sm" className="w-full justify-start hover:bg-slate-800">
         {label}
       </Button>
     </Link>
   );
 }
 
-function FooterSection({ title, items }: any) {
+function FooterSection({ title, items }: { title: string; items: string[] }) {
   return (
     <div>
       <h4 className="font-semibold text-white mb-3">{title}</h4>
       <ul className="space-y-2 text-sm">
-        {items.map((item: string, i: number) => (
-          <li key={i} className="hover:text-blue-400 cursor-pointer transition">
-            {item}
-          </li>
+        {items.map((item, i) => (
+          <li key={i} className="hover:text-blue-400 cursor-pointer transition">{item}</li>
         ))}
       </ul>
     </div>

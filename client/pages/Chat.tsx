@@ -1,11 +1,11 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import { useAuth } from "@/lib/auth-context";
 import { apiClient } from "@/lib/api-client";
 import { Button } from "@/components/ui/button";
 import { Layout } from "@/components/Layout";
+import { LoadingSpinner } from "@/components/LoadingSpinner";
 import {
   ChatSession,
-  SessionHistory,
   ChatMessage as ChatMessageType,
 } from "@shared/api";
 import {
@@ -45,12 +45,7 @@ export default function Chat() {
   if (authLoading) {
     return (
       <Layout>
-        <div className="min-h-[calc(100vh-64px)] flex items-center justify-center">
-          <div className="text-center">
-            <Loader2 size={32} className="animate-spin text-blue-500 mx-auto mb-4" />
-            <p className="text-slate-400">Loading chat...</p>
-          </div>
-        </div>
+        <LoadingSpinner message="Loading chat..." />
       </Layout>
     );
   }
@@ -59,31 +54,42 @@ export default function Chat() {
     return <Navigate to="/login" />;
   }
 
-  // Load sessions on mount
-  useEffect(() => {
-    loadSessions();
-  }, []);
-
-  // Scroll to bottom when messages change
-  useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
-
-  const loadSessions = async () => {
+  // Load sessions on mount — wrapped in useCallback so the reference is stable
+  // and won't cause extra re-renders when passed as a dependency.
+  const loadSessions = useCallback(async () => {
     try {
       setSessionsLoading(true);
       const response = await apiClient.getSessions();
       setSessions(response.sessions);
-      if (response.sessions.length > 0 && !activeSessionId) {
-        setActiveSessionId(response.sessions[0].sessionId);
-        loadSessionHistory(response.sessions[0].sessionId);
-      }
+      // Only auto-select the first session on the very first load
+      // (activeSessionId is still null at that point).
+      setActiveSessionId((prev) => {
+        if (!prev && response.sessions.length > 0) {
+          // Load history for the first session without triggering another render cycle
+          apiClient
+            .getSessionHistory(response.sessions[0].sessionId)
+            .then((history) => setMessages(history.messages))
+            .catch((err) => setError(getErrorMessage(err)));
+          return response.sessions[0].sessionId;
+        }
+        return prev;
+      });
     } catch (err: any) {
       setError(getErrorMessage(err));
     } finally {
       setSessionsLoading(false);
     }
-  };
+  }, []); // no deps — we read state via functional updater above
+
+  // Load sessions once on mount
+  useEffect(() => {
+    loadSessions();
+  }, [loadSessions]);
+
+  // Scroll to bottom when messages change
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
 
   const loadSessionHistory = async (sessionId: string) => {
     try {
@@ -252,9 +258,8 @@ export default function Chat() {
       <div className="min-h-[calc(100vh-64px)] flex bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
         {/* Sidebar - Sessions List */}
         <aside
-          className={`${
-            mobileMenuOpen ? "fixed inset-0 z-50" : "hidden"
-          } md:relative md:flex w-full md:w-80 border-r border-slate-700 bg-slate-800/95 backdrop-blur-xl flex-col transition-all`}
+          className={`${mobileMenuOpen ? "fixed inset-0 z-50" : "hidden"
+            } md:relative md:flex w-full md:w-80 border-r border-slate-700 bg-slate-800/95 backdrop-blur-xl flex-col transition-all`}
         >
           {/* Sidebar Header */}
           <div className="p-4 border-b border-slate-700">
@@ -321,18 +326,16 @@ export default function Chat() {
                   ) : (
                     <button
                       onClick={() => loadSessionHistory(session.sessionId)}
-                      className={`w-full text-left px-4 py-3 rounded-xl transition-all duration-200 ${
-                        activeSessionId === session.sessionId
-                          ? "bg-gradient-to-r from-blue-600/20 to-indigo-600/20 border border-blue-500/30"
-                          : "hover:bg-slate-700/50 border border-transparent"
-                      }`}
+                      className={`w-full text-left px-4 py-3 rounded-xl transition-all duration-200 ${activeSessionId === session.sessionId
+                        ? "bg-gradient-to-r from-blue-600/20 to-indigo-600/20 border border-blue-500/30"
+                        : "hover:bg-slate-700/50 border border-transparent"
+                        }`}
                     >
                       <div className="flex items-center justify-between mb-1">
-                        <span className={`font-medium truncate max-w-[160px] ${
-                          activeSessionId === session.sessionId
-                            ? "text-blue-400"
-                            : "text-slate-300"
-                        }`}>
+                        <span className={`font-medium truncate max-w-[160px] ${activeSessionId === session.sessionId
+                          ? "text-blue-400"
+                          : "text-slate-300"
+                          }`}>
                           {session.title}
                         </span>
                         <span className="text-xs text-slate-500">
@@ -431,7 +434,7 @@ export default function Chat() {
                 )}
               </div>
             </div>
-            
+
             {activeSessionId && messages.length > 0 && (
               <Button
                 onClick={() => handleGenerateReport(activeSessionId)}
@@ -492,9 +495,8 @@ export default function Chat() {
                 {messages.map((msg, idx) => (
                   <div
                     key={idx}
-                    className={`flex gap-3 animate-fade-in ${
-                      msg.role === "user" ? "justify-end" : "justify-start"
-                    }`}
+                    className={`flex gap-3 animate-fade-in ${msg.role === "user" ? "justify-end" : "justify-start"
+                      }`}
                   >
                     {/* Avatar for assistant */}
                     {msg.role === "assistant" && (
@@ -504,20 +506,18 @@ export default function Chat() {
                     )}
 
                     <div
-                      className={`max-w-xs sm:max-w-md lg:max-w-2xl px-5 py-3 rounded-2xl ${
-                        msg.role === "user"
-                          ? "bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-br-none shadow-lg shadow-blue-600/25"
-                          : "bg-slate-800/90 text-slate-200 border border-slate-700 rounded-bl-none shadow-lg"
-                      }`}
+                      className={`max-w-xs sm:max-w-md lg:max-w-2xl px-5 py-3 rounded-2xl ${msg.role === "user"
+                        ? "bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-br-none shadow-lg shadow-blue-600/25"
+                        : "bg-slate-800/90 text-slate-200 border border-slate-700 rounded-bl-none shadow-lg"
+                        }`}
                     >
                       <p className="text-sm leading-relaxed whitespace-pre-wrap">{msg.content}</p>
                       {msg.timestamp && (
                         <p
-                          className={`text-xs mt-2 ${
-                            msg.role === "user"
-                              ? "text-blue-200"
-                              : "text-slate-500"
-                          }`}
+                          className={`text-xs mt-2 ${msg.role === "user"
+                            ? "text-blue-200"
+                            : "text-slate-500"
+                            }`}
                         >
                           {formatTime(msg.timestamp)}
                         </p>

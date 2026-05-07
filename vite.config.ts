@@ -1,7 +1,6 @@
 import { defineConfig, Plugin } from "vite";
 import react from "@vitejs/plugin-react-swc";
 import path from "path";
-import { createServer } from "./server";
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
@@ -45,7 +44,9 @@ function expressPlugin(): Plugin {
   return {
     name: "express-plugin",
     apply: "serve", // يعمل في وضع dev فقط
-    configureServer(viteServer) {
+    async configureServer(viteServer) {
+      // Dynamic import to avoid build-time resolution issues
+      const { createServer } = await import("./server/index.js");
       const app = createServer();
 
       // ربط Express مع Vite

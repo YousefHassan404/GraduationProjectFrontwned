@@ -14,8 +14,8 @@ import {
   PredictionResponse2D,
 } from "@shared/api";
 
-const BASE_URL = "https://brain-tumor-backend-v1.vercel.app/api";
-// const BASE_URL = "http://localhost:3000/api";
+// const BASE_URL = "https://brain-tumor-backend-v1.vercel.app/api";
+const BASE_URL = "http://localhost:3000/api";
 class APIClient {
   private token: string | null = null;
 
