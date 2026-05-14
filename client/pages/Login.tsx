@@ -12,10 +12,7 @@ export default function Login() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const [formData, setFormData] = useState({
-    email: "",
-    password: "",
-  });
+  const [formData, setFormData] = useState({ email: "", password: "" });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -25,17 +22,8 @@ export default function Login() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
-
-    if (!formData.email.includes("@")) {
-      setError("Please enter a valid email address");
-      return;
-    }
-
-    if (!formData.password) {
-      setError("Password is required");
-      return;
-    }
-
+    if (!formData.email.includes("@")) { setError("Please enter a valid email address"); return; }
+    if (!formData.password) { setError("Password is required"); return; }
     try {
       setIsLoading(true);
       await login(formData.email, formData.password);
@@ -50,96 +38,61 @@ export default function Login() {
   return (
     <Layout>
       <div className="relative min-h-[calc(100vh-64px)] flex items-center justify-center px-4 py-16">
-
-        {/* Background Glow Effects */}
-        <div className="absolute -top-32 -left-32 w-72 h-72 bg-blue-600/20 rounded-full blur-3xl"></div>
-        <div className="absolute -bottom-32 -right-32 w-72 h-72 bg-indigo-600/20 rounded-full blur-3xl"></div>
+        <div className="absolute -top-32 -left-32 w-72 h-72 bg-blue-600/20 rounded-full blur-3xl" />
+        <div className="absolute -bottom-32 -right-32 w-72 h-72 bg-indigo-600/20 rounded-full blur-3xl" />
 
         <div className="relative w-full max-w-md z-10">
-
-          {/* Header */}
           <div className="text-center mb-10">
-            <h1 className="text-3xl font-bold text-white mb-2">
-              Welcome Back
-            </h1>
-            <p className="text-slate-400">
-              Sign in to continue to Brain Care
-            </p>
+            <h1 className="text-3xl font-bold text-slate-900 dark:text-white mb-2">Welcome Back</h1>
+            <p className="text-slate-500 dark:text-slate-400">Sign in to continue to Brain Care</p>
           </div>
 
-          {/* Glass Card */}
-          <div className="bg-white/5 backdrop-blur-2xl border border-slate-800 rounded-2xl p-8 shadow-xl shadow-blue-600/10">
-
+          <div className="bg-white dark:bg-white/5 backdrop-blur-2xl border border-slate-200 dark:border-slate-800 rounded-2xl p-8 shadow-xl shadow-blue-600/10">
             {error && (
               <div className="mb-6 p-4 bg-red-500/10 border border-red-500/30 rounded-lg flex gap-3">
                 <AlertCircle size={20} className="text-red-400 flex-shrink-0 mt-0.5" />
-                <p className="text-red-300 text-sm">{error}</p>
+                <p className="text-red-400 text-sm">{error}</p>
               </div>
             )}
 
             <form onSubmit={handleSubmit} className="space-y-6">
-
-              {/* Email */}
               <div>
-                <label className="block text-sm font-medium text-slate-300 mb-2">
-                  Email Address
-                </label>
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Email Address</label>
                 <div className="relative">
-                  <Mail size={18} className="absolute left-3 top-3 text-slate-500" />
+                  <Mail size={18} className="absolute left-3 top-3 text-slate-400 dark:text-slate-500" />
                   <input
-                    type="email"
-                    name="email"
-                    value={formData.email}
-                    onChange={handleChange}
-                    placeholder="example@email.com"
-                    disabled={isLoading}
-                    className="w-full pl-10 pr-4 py-3 bg-slate-900/50 border border-slate-700 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+                    type="email" name="email" value={formData.email} onChange={handleChange}
+                    placeholder="example@email.com" disabled={isLoading}
+                    className="w-full pl-10 pr-4 py-3 bg-slate-100 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
                   />
                 </div>
               </div>
 
-              {/* Password */}
               <div>
-                <label className="block text-sm font-medium text-slate-300 mb-2">
-                  Password
-                </label>
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Password</label>
                 <div className="relative">
-                  <Lock size={18} className="absolute left-3 top-3 text-slate-500" />
+                  <Lock size={18} className="absolute left-3 top-3 text-slate-400 dark:text-slate-500" />
                   <input
-                    type="password"
-                    name="password"
-                    value={formData.password}
-                    onChange={handleChange}
-                    placeholder="••••••••"
-                    disabled={isLoading}
-                    className="w-full pl-10 pr-4 py-3 bg-slate-900/50 border border-slate-700 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+                    type="password" name="password" value={formData.password} onChange={handleChange}
+                    placeholder="••••••••" disabled={isLoading}
+                    className="w-full pl-10 pr-4 py-3 bg-slate-100 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
                   />
                 </div>
               </div>
 
-              {/* Button */}
-              <Button
-                type="submit"
-                disabled={isLoading}
-                size="lg"
-                className="w-full gap-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:opacity-90 shadow-lg shadow-blue-600/30 transition-all"
-              >
+              <Button type="submit" disabled={isLoading} size="lg"
+                className="w-full gap-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:opacity-90 shadow-lg shadow-blue-600/30 transition-all text-white">
                 {isLoading && <Loader2 size={20} className="animate-spin" />}
                 {isLoading ? "Signing In..." : "Sign In"}
               </Button>
             </form>
 
-            {/* Footer */}
-            <div className="mt-8 text-center text-sm text-slate-400">
+            <div className="mt-8 text-center text-sm text-slate-500 dark:text-slate-400">
               Don't have an account?{" "}
-              <Link
-                to="/register"
-                className="text-blue-400 hover:text-blue-300 font-medium transition"
-              >
+              <Link to="/register" className="text-blue-500 dark:text-blue-400 hover:text-blue-400 font-medium transition">
                 Create one
               </Link>
             </div>
-
           </div>
         </div>
       </div>
