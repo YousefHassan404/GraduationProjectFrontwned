@@ -55,7 +55,7 @@ export default function Index() {
         ))}
 
         {/* Dark Overlay */}
-        <div className="absolute inset-0 bg-gradient-to-br from-[#020617]/90 via-[#0f172a]/85 to-[#020617]/90 backdrop-blur-sm" />
+        <div className="absolute inset-0 bg-gradient-to-br from-[#020617]/90 via-[#0f172a]/85 to-[#020617]/90 dark:from-[#020617]/90 dark:via-[#0f172a]/85 dark:to-[#020617]/90 from-slate-900/80 via-slate-800/75 to-slate-900/80 backdrop-blur-sm" />
 
         {/* Content */}
         <div className="relative z-10 max-w-6xl mx-auto px-6 text-center">
@@ -115,9 +115,9 @@ export default function Index() {
       </section>
 
       {/* ================= FEATURES CARDS ================= */}
-      <section className="py-24 bg-[#0b1120]">
+      <section className="py-24 bg-slate-100 dark:bg-[#0b1120] transition-colors duration-300">
         <div className="max-w-7xl mx-auto px-6">
-          <h2 className="text-4xl font-bold text-center text-white mb-16">
+          <h2 className="text-4xl font-bold text-center text-slate-800 dark:text-white mb-16">
             Core Features
           </h2>
 
@@ -141,16 +141,16 @@ export default function Index() {
             ].map((item, i) => (
               <div
                 key={i}
-                className="bg-white/5 backdrop-blur-xl border border-slate-800 rounded-2xl p-8 hover:border-blue-500/40 hover:shadow-xl hover:shadow-blue-500/10 transition-all duration-300"
+                className="bg-white dark:bg-white/5 backdrop-blur-xl border border-slate-200 dark:border-slate-800 rounded-2xl p-8 hover:border-blue-400 dark:hover:border-blue-500/40 hover:shadow-xl hover:shadow-blue-500/10 transition-all duration-300"
               >
                 <div className="w-14 h-14 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center mb-6 shadow-md shadow-blue-600/30">
                   <item.icon size={26} className="text-white" />
                 </div>
 
-                <h3 className="text-xl font-semibold text-white mb-3">
+                <h3 className="text-xl font-semibold text-slate-800 dark:text-white mb-3">
                   {item.title}
                 </h3>
-                <p className="text-slate-400">{item.desc}</p>
+                <p className="text-slate-500 dark:text-slate-400">{item.desc}</p>
               </div>
             ))}
           </div>
@@ -158,9 +158,9 @@ export default function Index() {
       </section>
 
       {/* ================= HOW IT WORKS ================= */}
-      <section className="py-24 bg-gradient-to-b from-[#0f172a] to-[#020617]">
+      <section className="py-24 bg-gradient-to-b from-slate-50 dark:from-[#0f172a] to-white dark:to-[#020617] transition-colors duration-300">
         <div className="max-w-6xl mx-auto px-6">
-          <h2 className="text-4xl font-bold text-center text-white mb-20">
+          <h2 className="text-4xl font-bold text-center text-slate-800 dark:text-white mb-20">
             How It Works
           </h2>
 
@@ -171,8 +171,8 @@ export default function Index() {
                   <div className="w-16 h-16 mx-auto bg-gradient-to-br from-blue-600 to-indigo-600 rounded-full flex items-center justify-center text-white text-xl font-bold mb-6 shadow-lg shadow-blue-600/30">
                     {i + 1}
                   </div>
-                  <h3 className="text-white font-semibold mb-2">{step}</h3>
-                  <p className="text-slate-400 text-sm">
+                  <h3 className="text-slate-800 dark:text-white font-semibold mb-2">{step}</h3>
+                  <p className="text-slate-500 dark:text-slate-400 text-sm">
                     Simple and streamlined medical AI workflow.
                   </p>
                 </div>
