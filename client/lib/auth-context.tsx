@@ -56,7 +56,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       name,
       email,
       password,
-      role: role as "doctor" | "patient" | "admin",
+      role: role as "doctor" | "patient" | "admin" | "lab",
     });
     apiClient.setToken(response.token);
     setUser(response.user);
